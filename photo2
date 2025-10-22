@@ -1,0 +1,14 @@
+# إنشاء مجلد محلياً
+mkdir new-folder
+
+# إنشاء ملف داخل المجلد
+echo "# ملف داخل المجلد الجديد" > new-folder/README.md
+
+# إضافة التغييرات
+git add new-folder/
+
+# عمل commit
+git commit -m "Add new folder with files"
+
+# رفع التغييرات إلى GitHub
+git push origin main
