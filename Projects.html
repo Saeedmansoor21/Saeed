@@ -1,0 +1,742 @@
+--- START OF FILE projects (2).html ---
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>TECHNOVA — معرض المشاريع</title>
+
+    <!-- Tailwind (CDN for quick demo) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Colors / CSS variables (themeable) -->
+    <link rel="stylesheet" href="assets/css/colors.css" />
+    <!-- Custom styles -->
+    <link rel="stylesheet" href="assets/css/styles.css" />
+    
+    <!-- Remixicon for icons -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+
+    <!-- Swiper for carousels -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+
+    <!-- AOS for animations -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet"/>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+    <!-- Custom styles to match Portfolio.html structure but use TECHNOVA colors -->
+    <style>
+      /* Use TECHNOVA's primary and accent colors for the gradient */
+      .gradient-bg {
+        background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+      }
+
+      .portfolio-item {
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        background-color: var(--color-surface); /* White/Surface background */
+      }
+
+      .portfolio-item:hover {
+        transform: translateY(-5px); /* Slightly less aggressive than Portfolio.html */
+        box-shadow: var(--shadow-glow); /* Use TECHNOVA's defined shadow */
+      }
+      
+      .portfolio-item img {
+        transition: transform 0.3s ease;
+        object-fit: cover; /* لضمان تغطية الصورة للمساحة دون تشوه */
+      }
+      
+      .portfolio-item .aspect-video {
+        /* aspect-video هو كلاس Tailwind يعادل aspect-ratio: 16 / 9; */
+        height: auto; /* إلغاء الارتفاع الثابت h-64 */
+      }
+      
+      .portfolio-item:hover .portfolio-overlay {
+        opacity: 1;
+      }
+
+      .portfolio-item:hover img {
+        transform: scale(1.05); /* Slightly less aggressive than Portfolio.html */
+      }
+
+      .filter-btn {
+        transition: transform 0.3s ease;
+      }
+
+      .portfolio-overlay {
+        position: absolute;
+        inset: 0;
+        /* Use a transparent overlay of the primary color */
+        background: linear-gradient(to top, rgba(37, 99, 235, 0.9), rgba(37, 99, 235, 0.7)); /* Using --color-primary: #2563EB */
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .portfolio-item:hover .portfolio-overlay {
+        opacity: 1;
+      }
+
+      .portfolio-item:hover img {
+        transform: scale(1.05); /* Slightly less aggressive than Portfolio.html */
+      }
+
+      .filter-btn {
+        transition: all 0.3s ease;
+        border: 2px solid var(--color-muted);
+        color: var(--color-dark);
+      }
+
+      .filter-btn:hover {
+        border-color: var(--color-primary);
+      }
+
+      .filter-btn.active {
+        background-color: var(--color-primary);
+        color: white;
+        border-color: var(--color-primary);
+      }
+
+      .tech-badge {
+        transition: all 0.2s ease;
+        background-color: var(--color-bg);
+        color: var(--color-dark);
+        border: 1px solid var(--color-muted);
+      }
+
+      .tech-badge:hover {
+        transform: scale(1.05);
+        background-color: var(--color-primary);
+        color: white;
+        border-color: var(--color-primary);
+      }
+
+      /* Modal Styles */
+      .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 50;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+      }
+
+      .modal-backdrop.open {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+     .modal-card {
+        width: 100%;
+        max-width: 960px;
+        max-height: 90vh;
+        border-radius: 1rem;
+        background-color: var(--color-surface);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        transform: scale(0.95);
+        transition: transform 0.3s ease;
+        display: flex;
+        flex-direction: column; /* لتمكين flex-grow على المحتوى الداخلي */
+      }
+
+      .modal-backdrop.open .modal-card {
+        transform: scale(1);
+      }
+      
+     .modal-swiper-container {
+        /* استخدام نسبة عرض إلى ارتفاع 16:9 لضمان التناسق */
+        aspect-ratio: 16 / 9;
+        /* إعدادات Swiper */
+        --swiper-navigation-color: var(--color-primary);
+        --swiper-navigation-size: 30px;
+        flex-shrink: 0;
+      }
+
+      .modal-swiper-container .swiper-slide img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain; /* عرض الصورة كاملة داخل المساحة المتاحة دون قص */
+      }
+      
+      @media (max-width: 768px) {
+          .modal-card {
+              max-width: 100%;
+              max-height: 100vh;
+              height: 100%;
+              margin: 0;
+              border-radius: 0;
+          }
+          .modal-backdrop {
+              padding: 0;
+          }
+          .modal-swiper-container {
+              aspect-ratio: 4 / 3; /* نسبة مختلفة على الموبايل */
+          }
+      }
+    </style>
+  </head>
+  <body class="bg-bg text-dark antialiased">
+    <div id="app" class="min-h-screen flex flex-col">
+      <!-- NAV (Copied from index.html) -->
+      <header
+        class="fixed w-full z-40 bg-white/70 backdrop-blur-sm border-b border-gray-100"
+      >
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex items-center justify-between h-16">
+            <a href="index.html" class="flex items-center gap-3">
+              <img
+                src="assets/images/logo.jpg"
+                alt="TECHNOVA"
+                class="h-10 w-10"
+              />
+              <span class="font-bold text-xl text-primary">TECHNOVA</span>
+            </a>
+
+            <nav class="hidden md:flex items-center gap-6">
+              <a
+                class="text-gray-700 hover:text-primary transition"
+                href="index.html#home"
+                >الرئيسية</a
+              >
+              <a
+                class="text-gray-700 hover:text-primary transition"
+                href="services.html"
+                >الخدمات</a
+              >
+              <a
+                class="text-primary font-bold transition"
+                href="projects.html"
+                >المشاريع</a
+              >
+              <a
+                class="text-gray-700 hover:text-primary transition"
+                href="contact.html"
+                >تواصل</a
+              >
+              <button
+                id="themeToggleBtn"
+                class="ml-4 px-3 py-2 rounded-md border border-gray-200 text-sm"
+              >
+                ثيم
+              </button>
+              <button
+                id="langToggleBtn"
+                class="ml-2 px-3 py-2 rounded-md border border-gray-200 text-sm"
+              >
+                EN
+              </button>
+            </nav>
+
+            <div class="md:hidden">
+              <button
+                id="mobileBtn"
+                class="p-2 rounded-md border border-gray-200"
+              >
+                ☰
+              </button>
+            </div>
+          </div>
+
+          <!-- Mobile menu -->
+          <div id="mobileMenu" class="mobile-menu md:hidden px-2 pb-4 hidden">
+            <a href="#home" class="block px-4 py-2 rounded hover:bg-gray-50"
+              >الرئيسية</a
+            >
+            <a
+              href="services.html"
+              class="block px-4 py-2 rounded hover:bg-gray-50"
+              >الخدمات</a
+            >
+            <a
+              href="projects.html"
+              class="block px-4 py-2 rounded hover:bg-gray-50 bg-primary/10 text-primary font-bold"
+              >المشاريع</a
+            >
+            <a
+              href="contact.html"
+              class="block px-4 py-2 rounded hover:bg-gray-50"
+              >تواصل</a
+            >
+          </div>
+        </div>
+      </header>
+
+      <!-- Hero Section (Based on Portfolio.html) -->
+      <section class="pt-24 pb-16 md:pt-32 md:pb-24 gradient-bg text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="text-center">
+            <h1 class="text-4xl md:text-5xl font-bold mb-6">معرض المشاريع</h1>
+            <p class="text-xl text-white/90 max-w-3xl mx-auto">
+              اكتشف مجموعة من أحدث وأبرز المشاريع التي قمنا بتنفيذها.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Filter Section (Based on Portfolio.html) -->
+      <section class="py-8 bg-surface sticky top-16 z-40 shadow-sm border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex flex-wrap justify-center gap-4">
+            <button class="filter-btn active px-6 py-2 rounded-full" data-filter="all">
+              الكل
+            </button>
+            <button class="filter-btn px-6 py-2 rounded-full" data-filter="web">
+              تطبيقات الويب
+            </button>
+            <button class="filter-btn px-6 py-2 rounded-full" data-filter="mobile">
+              تطبيقات الموبايل
+            </button>
+            <button class="filter-btn px-6 py-2 rounded-full" data-filter="enterprise">
+              حلول مؤسسية
+            </button>
+            <button class="filter-btn px-6 py-2 rounded-full" data-filter="student">
+              مشاريع طلابية
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Portfolio Grid (Based on Portfolio.html) -->
+      <main class="flex-grow py-16 bg-bg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div id="portfolio-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Project cards will be injected here by the script -->
+            <div class="text-center p-10 col-span-full text-muted" id="loadingMessage">
+                <i class="ri-loader-4-line animate-spin text-3xl text-primary"></i>
+                <p class="mt-2">جاري تحميل المشاريع...</p>
+            </div>
+          </div>
+        </div>
+      </main>
+      
+      <!-- FOOTER (Copied from index.html) -->
+      <footer class="bg-dark text-white pt-10 pb-6 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-8 border-b border-gray-700 pb-8 mb-6">
+            <div class="col-span-1 md:col-span-2">
+              <a href="index.html" class="flex items-center gap-3 mb-4">
+                <img
+                  src="assets/images/logo.jpg"
+                  alt="TECHNOVA"
+                  class="h-10 w-10 rounded-full"
+                />
+                <span class="font-bold text-2xl text-primary">TECHNOVA</span>
+              </a>
+              <p class="text-gray-400 text-sm max-w-sm">
+                نحول أفكارك التقنية إلى واقع مبتكر. حلول متكاملة لجميع احتياجاتك.
+              </p>
+            </div>
+            <div>
+              <h4 class="text-lg font-semibold mb-4">روابط سريعة</h4>
+              <ul class="space-y-2 text-sm">
+                <li><a href="index.html#home" class="text-gray-400 hover:text-primary transition">الرئيسية</a></li>
+                <li><a href="services.html" class="text-gray-400 hover:text-primary transition">الخدمات</a></li>
+                <li><a href="projects.html" class="text-primary font-bold transition">المشاريع</a></li>
+                <li><a href="contact.html" class="text-gray-400 hover:text-primary transition">تواصل</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 class="text-lg font-semibold mb-4">تواصل معنا</h4>
+              <ul class="space-y-2 text-sm">
+                <li class="text-gray-400"><i class="ri-mail-line mr-2"></i> info@technova.com</li>
+                <li class="text-gray-400"><i class="ri-phone-line mr-2"></i> +966 50 123 4567</li>
+                <li class="text-gray-400"><i class="ri-map-pin-line mr-2"></i> الرياض، المملكة العربية السعودية</li>
+              </ul>
+            </div>
+          </div>
+          <div class="text-center text-gray-500 text-sm">
+            &copy; 2024 TECHNOVA. جميع الحقوق محفوظة.
+          </div>
+        </div>
+      </footer>
+
+      <!-- Project Detail Modal -->
+      <div id="projectModal" class="modal-backdrop" onclick="closeModal(event)">
+        <div class="modal-card" onclick="event.stopPropagation()">
+          <div class="flex justify-between items-start p-4 border-b border-gray-200">
+            <h2 id="modalTitle" class="text-2xl font-bold text-primary"></h2>
+            <button onclick="closeModal()" class="text-dark hover:text-red-500 transition" title="إغلاق">
+              <i class="ri-close-line text-3xl"></i>
+            </button>
+          </div>
+          
+          <div class="overflow-y-auto flex-grow" style="max-height: calc(90vh - 70px);">
+            <div id="modalSwiperContainer" class="swiper modal-swiper-container w-full">
+              <div id="modalSwiperWrapper" class="swiper-wrapper">
+                <!-- Slides will be injected here -->
+              </div>
+              <!-- Swiper Navigation Buttons -->
+              <div class="swiper-button-prev"></div>
+              <div class="swiper-button-next"></div>
+              <!-- Swiper Pagination -->
+              <div class="swiper-pagination"></div>
+            </div>
+
+            <div class="p-6">
+              <p id="modalDescription" class="text-muted text-lg mb-4"></p>
+              <div id="modalTags" class="flex flex-wrap gap-2 mb-6">
+                <!-- Tags will be injected here -->
+              </div>
+
+              <div class="flex justify-start items-center">
+                <a id="modalLink" href="#" target="_blank" class="bg-primary text-white px-6 py-3 rounded-lg font-bold hover:bg-primary-600 transition">
+                  عرض المشروع <i class="ri-external-link-line mr-1"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- End Project Detail Modal -->
+
+      <!-- Back to Top Button -->
+      <button id="backToTopBtn" 
+              class="fixed bottom-6 right-6 bg-primary text-white p-3 rounded-full shadow-lg hover:bg-primary-600 transition-all duration-300 z-50 opacity-0 translate-y-8 
+                     md:right-10 md:bottom-10"
+              aria-label="العودة إلى الأعلى">
+          <i class="ri-arrow-up-line text-2xl"></i>
+      </button>
+      <!-- End Back to Top Button -->
+
+      <script>
+        /* ========== تهيئة مكتبات الرسوم المتحركة ========== */
+        AOS?.init?.();
+        
+        /* ========== وظائف التبديل (ثيم، لغة، قائمة الجوال) ========== */
+        // Simplified Theme/Lang Toggles (as in previous projects.html)
+        document.getElementById('themeToggleBtn')?.addEventListener('click', () => {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme') || 'default';
+            const newTheme = currentTheme === 'default' ? 'navy' : (currentTheme === 'navy' ? 'accent' : 'default');
+            html.setAttribute('data-theme', newTheme);
+            // Note: Actual theme colors would need to be managed by CSS based on data-theme attribute.
+        });
+        
+        document.getElementById('langToggleBtn')?.addEventListener('click', () => {
+            const html = document.documentElement;
+            const currentDir = html.getAttribute('dir');
+            const newDir = currentDir === 'rtl' ? 'ltr' : 'rtl';
+            html.setAttribute('dir', newDir);
+            html.setAttribute('lang', newDir === 'rtl' ? 'ar' : 'en');
+            document.getElementById('langToggleBtn').textContent = newDir === 'rtl' ? 'EN' : 'AR';
+            // If you have different language content, this would need more logic.
+        });
+        
+        document.getElementById('mobileBtn')?.addEventListener('click', () => {
+            document.getElementById('mobileMenu').classList.toggle('hidden');
+        });
+
+        /* ========== وظائف التمرير السلس وزر "العودة للأعلى" ========== */
+        // Smooth Scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault(); // Prevent default anchor click behavior
+
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+
+                if (targetElement) {
+                    const headerOffset = 70; // Approximate height of the fixed header to account for scroll
+                    const elementPosition = targetElement.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: "smooth"
+                    });
+                }
+            });
+        });
+
+        // Back to Top Button Logic
+        const backToTopBtn = document.getElementById('backToTopBtn');
+        const scrollThreshold = 300; // Show button after scrolling 300px
+
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > scrollThreshold) {
+                backToTopBtn.classList.add('opacity-100', 'translate-y-0');
+                backToTopBtn.classList.remove('opacity-0', 'translate-y-8');
+            } else {
+                backToTopBtn.classList.add('opacity-0', 'translate-y-8');
+                backToTopBtn.classList.remove('opacity-100', 'translate-y-0');
+            }
+        });
+
+        backToTopBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+
+        /* ========== منطق جلب المشاريع ========== */
+        const githubRawProjectsJson = 'https://raw.githubusercontent.com/Saeedmansoor21/saeed-ai/main/public/projects.json';
+        const githubContentsApi = 'https://api.github.com/repos/Saeedmansoor21/saeed-ai/contents/public';
+        let lastETag = null;
+        let projects = []; // المصفوفة النهائية للمشاريع (كائنات)
+        let currentFilter = 'all';
+        let modalSwiperInstance = null;
+        const projectModal = document.getElementById('projectModal'); // Get modal element
+
+        // مشاريع محلية افتراضية (كبديل في حال فشل الجلب)
+        const localProjects = [
+          { id: 'local-1', title: "نظام إدارة المطاعم", shortDesc: "تطبيق ويب متكامل لإدارة الطلبات والمخزون في المطاعم.", tags:["React","Node.js","MongoDB"], category: "web", images:["./assets/images/hero-image.jpg", "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=1200&q=60"], link:"#"},
+          { id: 'local-2', title: "تطبيق محفظة رقمية", shortDesc:"تطبيق جوال آمن لإدارة المعاملات المالية وتتبع الأرصدة.", tags:["Flutter","Firebase"], category: "mobile", images:["https://images.unsplash.com/photo-1605902711622-cfb43c4435f4?auto=format&fit=crop&w=1200&q=60"], link:"#"},
+          { id: 'local-3', title: "نظام متابعة المشاريع", shortDesc:"لوحة تحكم احترافية لتنظيم مهام الفريق وتتبع التقدم.", tags:["Vue.js","Tailwind CSS"], category: "enterprise", images:["https://images.unsplash.com/photo-1517430816045-df4b7de01c3f?auto=format&fit=crop&w=1200&q=60"], link:"#"},
+          { id: 'local-4', title: "مشروع تخرج جامعي", shortDesc: "نظام ذكي لفرز النفايات باستخدام التعلم الآلي.", tags: ["Python", "TensorFlow"], category: "student", images: ["./assets/images/graduated-graduate-svgrepo-com.svg"], link:"#"}
+        ];
+
+        /* مساعدة لحماية النص من XSS */
+        function escapeHtml(s){ 
+            if(!s && s!==0) return ''; 
+            return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]); 
+        }
+
+        /* جلب projects.json ذكي مع ETag */
+        async function fetchProjectsWithETag(){
+          const headers = {};
+          if(lastETag) headers['If-None-Match'] = lastETag;
+          try {
+            const res = await fetch(githubRawProjectsJson, { headers, cache: 'no-store' });
+            if(res.status === 304) return { status: 'not-modified' };
+            if(!res.ok) throw new Error(`فشل جلب projects.json: ${res.status} ${res.statusText}`);
+            
+            const et = res.headers.get('ETag');
+            if(et) lastETag = et;
+            
+            const data = await res.json();
+            const list = Array.isArray(data.projects) ? data.projects.map((p,idx)=>({
+              id: p.id ?? `json-project-${idx}-${Date.now()}`, // Unique ID
+              title: p.title || p.name || 'مشروع بدون عنوان',
+              shortDesc: p.shortDesc || p.description || 'لا يوجد وصف.',
+              tags: Array.isArray(p.tags) ? p.tags : [],
+              category: p.category || 'web', // Default category if missing
+              images: Array.isArray(p.images) && p.images.length ? p.images : (p.image ? [p.image] : []), // Ensure images is an array
+              link: p.link || p.url || '#' // Link to project
+            })) : [];
+            return { status: 'ok', projects: list };
+          } catch(err){
+            console.error('fetchProjectsWithETag error:', err);
+            return { status: 'error', error: err };
+          }
+        }
+
+        /* جلب محتويات المجلد من GitHub API (كملاذ أخير) */
+        async function fetchProjectsFromGitHubContents(){
+          try {
+            const res = await fetch(githubContentsApi);
+            if(!res.ok) throw new Error(`فشل الاتصال بـ GitHub contents API: ${res.status} ${res.statusText}`);
+            const data = await res.json();
+            const githubProjects = data
+              .filter(item => item.type === "dir" || item.type === "file") // Only consider directories or files
+              .map((item, index) => ({
+                id: `gh-item-${item.sha || index}`, // Use SHA for uniqueness
+                title: item.name,
+                shortDesc: `محتوى من مستودع GitHub: ${item.name}`,
+                tags: ["GitHub","Repository Content"],
+                category: "web", // Default category
+                images: item.download_url ? [item.download_url] : ["https://cdn-icons-png.flaticon.com/512/25/25231.png"], // Placeholder if no direct image
+                link: item.html_url || "https://github.com/Saeedmansoor21/saeed-ai"
+              }));
+            return { status: 'ok', projects: githubProjects };
+          } catch(err){
+            console.error('fetchProjectsFromGitHubContents error:', err);
+            return { status: 'error', error: err };
+          }
+        }
+
+        /* دالة لفتح النافذة المنبثقة (Modal) */
+        function openModal(projectId) {
+            const project = projects.find(p => p.id === projectId);
+            if (!project) {
+                console.error(`Project with ID ${projectId} not found.`);
+                return;
+            }
+            
+            // 1. Update Modal Content
+            const modalTitleElement = document.getElementById('modalTitle');
+            modalTitleElement.textContent = project.title;
+            // For accessibility, link the modal title to the modal dialog
+            projectModal.setAttribute('aria-labelledby', modalTitleElement.id);
+
+            document.getElementById('modalDescription').textContent = project.shortDesc;
+            document.getElementById('modalLink').href = project.link;
+
+            const tagsContainer = document.getElementById('modalTags');
+            tagsContainer.innerHTML = (project.tags || []).map(t => `<span class="tech-badge inline-block px-3 py-1 text-xs rounded-full">${escapeHtml(t)}</span>`).join(' ');
+
+            // 2. Update Swiper Slides
+            const swiperWrapper = document.getElementById('modalSwiperWrapper');
+            // Use a default image if no images are provided
+            const defaultImage = './assets/images/default-project-image.jpg'; // Create this placeholder or use a CDN link
+            swiperWrapper.innerHTML = (project.images && project.images.length > 0 ? project.images : [defaultImage]).map(src => 
+                `<div class="swiper-slide flex items-center justify-center bg-gray-100"><img src="${escapeHtml(src)}" alt="${escapeHtml(project.title)}"/></div>`
+            ).join('');
+
+            // 3. Initialize/Update Swiper
+            if (modalSwiperInstance) {
+                // Destroy previous instance if it exists
+                modalSwiperInstance.destroy(true, true);
+            }
+            modalSwiperInstance = new Swiper('#modalSwiperContainer', {
+                slidesPerView: 1,
+                spaceBetween: 10,
+                loop: true,
+                navigation: {
+                    nextEl: '.swiper-button-next',
+                    prevEl: '.swiper-button-prev',
+                },
+                pagination: {
+                    el: '.swiper-pagination',
+                    clickable: true,
+                },
+            });
+
+            // 4. Show Modal
+            projectModal.classList.add('open');
+            document.body.style.overflow = 'hidden'; // Prevent scrolling background
+        }
+
+        /* دالة لإغلاق النافذة المنبثقة (Modal) */
+        function closeModal(event) {
+            // Check if the click was on the backdrop itself or if called without event
+            if (!event || event.target.id === 'projectModal' || event.target.closest('button[onclick="closeModal()"]')) {
+                projectModal.classList.remove('open');
+                document.body.style.overflow = '';
+                // Optionally, destroy Swiper instance when modal closes to free resources
+                if (modalSwiperInstance) {
+                    modalSwiperInstance.destroy(true, true);
+                    modalSwiperInstance = null;
+                }
+            }
+        }
+        
+        /* دمج وعرض المشاريع في الشبكة */
+        function renderProjects(list, filter) {
+            const grid = document.getElementById('portfolio-grid');
+            grid.innerHTML = ''; // Clear existing content
+            
+            const filteredProjects = list.filter(p => filter === 'all' || p.category === filter);
+
+            if (filteredProjects.length === 0) {
+                grid.innerHTML = '<div class="text-center p-10 col-span-full text-muted"><i class="ri-error-warning-line text-3xl text-accent"></i><p class="mt-2">لا توجد مشاريع في هذا التصنيف حاليًا.</p></div>';
+                return;
+            }
+
+            filteredProjects.forEach(p => {
+                const tagsHtml = (p.tags || []).map(t => `<span class="tech-badge inline-block px-3 py-1 text-xs rounded-full">${escapeHtml(t)}</span>`).join(' ');
+                
+                const projectHtml = `
+                    <div class="portfolio-item rounded-lg overflow-hidden shadow-lg cursor-pointer" 
+                         data-aos="fade-up" 
+                         data-category="${p.category}"
+                         onclick="openModal('${p.id}')"> 
+                        <div class="relative overflow-hidden aspect-video">
+                            <img
+                                src="${p.images[0] || './assets/images/default-project-image.jpg'}" 
+                                alt="${p.title}"
+                                class="w-full h-full object-cover"
+                            />
+                            <div class="portfolio-overlay opacity-0 hover:opacity-100">
+                                <button class="text-white text-lg font-bold border-2 border-white px-6 py-3 rounded-full hover:bg-white hover:text-primary transition-colors">
+                                    عرض التفاصيل <i class="ri-search-line mr-1"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold mb-2">${p.title}</h3>
+                            <p class="text-muted text-sm mb-4">${p.shortDesc}</p>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                ${tagsHtml}
+                            </div>
+                            <!-- Removed redundant button from here -->
+                        </div>
+                    </div>
+                `;
+                grid.insertAdjacentHTML('beforeend', projectHtml);
+            });
+        }
+
+        /* وظيفة جلب ودمج المشاريع الرئيسية */
+        async function loadProjects(useCache = true){
+          const loadingMessage = document.getElementById('loadingMessage');
+          loadingMessage.style.display = 'block'; // Show loading indicator
+          
+          let projectList = [];
+          
+          if(useCache && projects.length > 0) {
+              // Use cached projects if available and not explicitly disabled
+              projectList = projects;
+          } else {
+              // 1. Try to fetch from projects.json (smart fetch with ETag)
+              const jsonResult = await fetchProjectsWithETag();
+              if(jsonResult.status === 'ok'){
+                  projectList = jsonResult.projects;
+              } else if (jsonResult.status === 'not-modified') {
+                  projectList = projects; // Use cached list if server returned 304
+              } else {
+                  // 2. Fallback to GitHub contents API if projects.json failed
+                  const ghResult = await fetchProjectsFromGitHubContents();
+                  if(ghResult.status === 'ok'){
+                      projectList = ghResult.projects;
+                  } else {
+                      // 3. Final fallback to local projects if GitHub API failed
+                      console.warn("Failed to fetch projects from GitHub. Using local fallback projects.");
+                      projectList = localProjects;
+                  }
+              }
+          }
+          
+          projects = projectList; // Update global projects list with fetched/fallback data
+          renderProjects(projects, currentFilter); // Render projects based on current filter
+          loadingMessage.style.display = 'none'; // Hide loading indicator
+        }
+
+        /* ========== تهيئة كل شيء عند تحميل الصفحة ========== */
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initial load of projects, bypass cache to ensure latest data if available
+            loadProjects(false); 
+
+            // Setup filter button listeners
+            document.querySelectorAll('.filter-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove 'active' class from all filter buttons
+                    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+                    // Add 'active' class to the clicked button
+                    this.classList.add('active');
+                    
+                    currentFilter = this.getAttribute('data-filter'); // Update current filter
+                    renderProjects(projects, currentFilter); // Re-render projects
+                });
+            });
+
+            /* ========== إعدادات سهولة الوصول للـ Modal ========== */
+            // Add ARIA roles to modal for accessibility
+            projectModal.setAttribute('role', 'dialog');
+            projectModal.setAttribute('aria-modal', 'true');
+
+            // Add Escape key listener to close modal
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape' && projectModal.classList.contains('open')) {
+                    closeModal();
+                }
+            });
+        });
+      </script>
+    </div>
+  </body>
+</html>
+--- END OF FILE projects (2).html ---
